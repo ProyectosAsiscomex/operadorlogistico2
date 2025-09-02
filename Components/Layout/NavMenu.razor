@@ -1,0 +1,214 @@
+﻿@using MudBlazor
+
+<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Inicio
+    </MudNavLink>
+
+    <MudNavGroup Title="Operaciones D.O" Icon="@Icons.Material.Filled.GroupWork" Expanded="false">
+        <MudNavLink Href="/do/asiscomex" Icon="@Icons.Material.Filled.Add">
+            Nuevo DO
+        </MudNavLink>
+        <MudNavLink Href="/do/search" Icon="@Icons.Material.Filled.Search">
+            Buscar DO
+        </MudNavLink>
+        <MudNavLink Href="/do/list" Icon="@Icons.Material.Filled.BrandingWatermark">
+            Catalogo de Productos
+        </MudNavLink>
+        <MudNavLink Href="/do/list" Icon="@Icons.Material.Filled.CalendarMonth">
+            Seguimiento y trazabilidad
+        </MudNavLink>
+        <MudNavLink Href="/do/list" Icon="@Icons.Material.Filled.CloudUpload">
+            Documentos D.O
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Embarque" Icon="@Icons.Material.Filled.LocalShipping" Expanded="false">
+        <MudNavLink Href="/embarque/bl" Icon="@Icons.Material.Filled.Description">
+            BL
+        </MudNavLink>
+        <MudNavLink Href="/embarque/shipping-instructions" Icon="@Icons.Material.Filled.Book">
+            Shipping instructions
+        </MudNavLink>
+        <MudNavLink Href="/embarque/certificacion-fletes" Icon="@Icons.Material.Filled.VerifiedUser">
+            Certificación fletes
+        </MudNavLink>
+        <MudNavLink Href="/embarque/instrucciones-agente-carga" Icon="@Icons.Material.Filled.Inventory">
+            Instrucciones Agente de Carga
+        </MudNavLink>
+        <MudNavLink Href="/embarque/instrucciones-agente-aduana" Icon="@Icons.Material.Filled.IntegrationInstructions">
+            Instrucciones Agente de Aduana
+        </MudNavLink>
+        <MudNavLink Href="/embarque/instrucciones-transportador-nacional" Icon="@Icons.Material.Filled.EmojiTransportation">
+            Instrucciones Transportador Nacional
+        </MudNavLink>
+        <MudNavLink Href="/embarque/deposito-contenedores" Icon="@Icons.Material.Filled.Warehouse">
+            Deposito de Contenedores
+        </MudNavLink>
+    </MudNavGroup>
+
+
+    <MudNavGroup Title="Anticipos" Icon="@Icons.Material.Filled.RequestPage" Expanded="false">
+        <MudNavLink Href="/anticipos/solicitud-anticipo" Icon="@Icons.Material.Filled.AttachMoney">
+            Solicitud Anticipo
+        </MudNavLink>
+        <MudNavLink Href="/anticipos/informe-anticipos" Icon="@Icons.Material.Filled.Assessment">
+            Informe de Anticipos
+        </MudNavLink>
+        <MudNavLink Href="/anticipos/informe-do-sin-anticipo" Icon="@Icons.Material.Filled.MoneyOff">
+            Informe DO sin Anticipo
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Facturación" Icon="@Icons.Material.Filled.Paid" Expanded="false">
+        <MudNavLink Href="/facturacion/facturacion" Icon="@Icons.Material.Filled.AttachMoney">
+            Facturación
+        </MudNavLink>
+        <MudNavLink Href="/facturacion/informe-facturacion" Icon="@Icons.Material.Filled.Assessment">
+            Informe Facturación
+        </MudNavLink>
+        <MudNavLink Href="/facturacion/informe-do-sin-facturacion" Icon="@Icons.Material.Filled.Warning">
+            Informe DO sin Facturación
+        </MudNavLink>
+        <MudNavLink Href="/facturacion/resolucion-facturacion" Icon="@Icons.Material.Filled.Build">
+            Resolución de facturación
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Contabilidad" Icon="@Icons.Material.Filled.AccountBalance" Expanded="false">
+        <MudNavLink Href="/contabilidad/causaciones" Icon="@Icons.Material.Filled.Calculate">
+            Causaciones
+        </MudNavLink>
+        <MudNavLink Href="/contabilidad/reporte-causaciones" Icon="@Icons.Material.Filled.Assessment">
+            Reporte Causaciones
+        </MudNavLink>
+        <MudNavLink Href="/contabilidad/recibos-caja" Icon="@Icons.Material.Filled.Receipt">
+            Recibos de caja
+        </MudNavLink>
+        <MudNavLink Href="/contabilidad/notas-debito-credito" Icon="@Icons.Material.Filled.CreditCard">
+            Notas débito y crédito
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Tesoreria" Icon="@Icons.Material.Filled.AccountBalanceWallet" Expanded="false">
+        <MudNavLink Href="/tesoreria/cartera" Icon="@Icons.Material.Filled.AccountBalanceWallet">
+            Cartera
+        </MudNavLink>
+        <MudNavLink Href="/tesoreria/autorizacion-pagos" Icon="@Icons.Material.Filled.CheckCircle">
+            Autorizacion Pagos
+        </MudNavLink>
+        <MudNavLink Href="/tesoreria/egresos" Icon="@Icons.Material.Filled.TrendingDown">
+            Egresos
+        </MudNavLink>
+        <MudNavLink Href="/tesoreria/informe-pago-terceros" Icon="@Icons.Material.Filled.Assessment">
+            Informe pago a Terceros
+        </MudNavLink>
+        <MudNavLink Href="/tesoreria/informe-pagos" Icon="@Icons.Material.Filled.Analytics">
+            Informe de Pagos
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Comercial" Icon="@Icons.Material.Filled.BusinessCenter" Expanded="false">
+        <MudNavLink Href="/comercial/asignacion-citas" Icon="@Icons.Material.Filled.Event">
+            Asignación de citas
+        </MudNavLink>
+        <MudNavLink Href="/comercial/solicitudes-proveedores" Icon="@Icons.Material.Filled.Send">
+            Solicitudes a Proveedores
+        </MudNavLink>
+        <MudNavLink Href="/comercial/cotizacion" Icon="@Icons.Material.Filled.RequestQuote">
+            Cotización
+        </MudNavLink>
+        <MudNavLink Href="/comercial/informe-cotizaciones" Icon="@Icons.Material.Filled.Assessment">
+            Informe de cotizaciones
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Administración" Icon="@Icons.Material.Filled.AdminPanelSettings" Expanded="false">
+        <MudNavLink Href="/admin/clientes" Icon="@Icons.Material.Filled.People">
+            Clientes
+        </MudNavLink>
+        <MudNavLink Href="/admin/terceros" Icon="@Icons.Material.Filled.Person">
+            Terceros
+        </MudNavLink>
+        <MudNavLink Href="/admin/proveedores-internacionales" Icon="@Icons.Material.Filled.Public">
+            Proveedores Internacionales
+        </MudNavLink>
+        <MudNavLink Href="/admin/integracion-contable" Icon="@Icons.Material.Filled.TrackChanges">
+            Integración contable
+        </MudNavLink>
+    </MudNavGroup>
+
+    <MudNavGroup Title="Reportes Generales" Icon="@Icons.Material.Filled.Assessment" Expanded="false">
+        <MudNavLink Href="/reportes/dashboard" Icon="@Icons.Material.Filled.Dashboard">
+            Dashboard
+        </MudNavLink>
+        <MudNavLink Href="/reportes/seguimiento-operacion" Icon="@Icons.Material.Filled.TrackChanges">
+            Seguimiento Operación
+        </MudNavLink>
+        <MudNavLink Href="/reportes/facturacion" Icon="@Icons.Material.Filled.Receipt">
+            Reporte facturación
+        </MudNavLink>
+        <MudNavLink Href="/reportes/cartera" Icon="@Icons.Material.Filled.AccountBalanceWallet">
+            Informe Cartera
+        </MudNavLink>
+        
+        <MudNavLink Href="/reportes/eta" Icon="@Icons.Material.Filled.Schedule">
+            Informe ETA
+        </MudNavLink>
+        <MudNavLink Href="/reportes/aris-mining" Icon="@Icons.Material.Filled.PieChart">
+            Aris Mining
+        </MudNavLink>
+    </MudNavGroup>
+
+ @*    <MudNavGroup Title="Importaciones" Icon="@Icons.Material.Filled.LocalShipping">
+        <MudNavLink Href="/importaciones/declaraciones" Icon="@Icons.Material.Filled.Assignment">
+            Declaraciones
+        </MudNavLink>
+        <MudNavLink Href="/importaciones/seguimiento" Icon="@Icons.Custom.FileFormats.FileDocument">
+            Documentos DO
+        </MudNavLink>
+        <MudNavLink Href="/importaciones/documentos" Icon="@Icons.Material.Filled.AttachFile">
+            Documentos
+        </MudNavLink>
+    </MudNavGroup> *@
+
+    @* <MudNavGroup Title="Exportaciones" Icon="@Icons.Material.Filled.FlightTakeoff">
+        <MudNavLink Href="/exportaciones/autorizacion" Icon="@Icons.Material.Filled.CheckCircle">
+            Autorización de Embarque
+        </MudNavLink>
+        <MudNavLink Href="/exportaciones/dex" Icon="@Icons.Material.Filled.Article">
+            DEX
+        </MudNavLink>
+    </MudNavGroup> *@
+
+  @*   <MudNavGroup Title="Maestros" Icon="@Icons.Material.Filled.Settings">
+        <MudNavLink Href="/maestros/exportadores" Icon="@Icons.Material.Filled.Business">
+            Exportadores
+        </MudNavLink>
+        <MudNavLink Href="/maestros/productos" Icon="@Icons.Material.Filled.Inventory">
+            Productos
+        </MudNavLink>
+        <MudNavLink Href="/maestros/proveedores" Icon="@Icons.Material.Filled.People">
+            Proveedores
+        </MudNavLink>
+    </MudNavGroup> *@
+
+   @*  <MudNavGroup Title="Reportes" Icon="@Icons.Material.Filled.Assessment">
+        <MudNavLink Href="/reportes/operaciones" Icon="@Icons.Material.Filled.BarChart">
+            Operaciones
+        </MudNavLink>
+        <MudNavLink Href="/reportes/indicadores" Icon="@Icons.Material.Filled.ShowChart">
+            Indicadores
+        </MudNavLink>
+    </MudNavGroup> *@
+
+    <MudDivider Class="my-2" />
+
+    <MudNavLink Href="/configuracion" Icon="@Icons.Material.Filled.Build">
+        Maestros
+    </MudNavLink>
+
+    <MudNavLink Href="/ayuda" Icon="@Icons.Material.Filled.ContactSupport">
+        Soporte
+    </MudNavLink>
+</MudNavMenu>

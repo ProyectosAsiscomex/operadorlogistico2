@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace AsiscomexOperadorLogistico.Data.Entities;
+
+public partial class EventoEstadoExportacione
+{
+    [Key]
+    public int idEventoEstado { get; set; }
+
+    public int? idfacturaexpo { get; set; }
+
+    public int? idEntrega { get; set; }
+
+    public int? idestado { get; set; }
+
+    [Column(TypeName = "smalldatetime")]
+    public DateTime? fPropuesta { get; set; }
+
+    [Column(TypeName = "smalldatetime")]
+    public DateTime? fFechaReal { get; set; }
+
+    public int? idtercero { get; set; }
+
+    public string? cObservaciones { get; set; }
+
+    [StringLength(50)]
+    public string? despacho { get; set; }
+
+    public int? idcategoria { get; set; }
+
+    public int? diasduracion { get; set; }
+
+    public int? posicion { get; set; }
+}

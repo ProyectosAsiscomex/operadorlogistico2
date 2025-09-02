@@ -1,0 +1,1030 @@
+﻿@page "/do/asiscomex"
+@page "/do/asiscomex/{IdDO:int}"
+@using AsiscomexOperadorLogistico.Models
+@using AsiscomexOperadorLogistico.Services.Interfaces
+@inject IDOService DOService
+@inject IExportadorService ExportadorService
+@inject IParametrosService ParametrosService
+@inject IStorageService StorageService
+@inject IEmailService EmailService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+   
+    <MudPaper Elevation="2" Class="pa-4">
+        @* Encabezado del formulario *@
+        <MudGrid>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4" Class="mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Description" Class="mr-2" />
+                    Control de DO - Importación
+                </MudText>
+            </MudItem>
+
+            @* Información principal del DO *@
+            <MudItem xs="12" md="3">
+                <MudTextField @bind-Value="model.NroDO"
+                              Label="Número de DO"
+                              ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Tag" />
+            </MudItem>
+
+            <MudItem xs="12" md="3">
+                <MudDatePicker @bind-Date="fechaCreacion"
+                               Label="Fecha de Creación"
+                               ReadOnly="true"
+                               Variant="Variant.Outlined"
+                               DateFormat="dd/MM/yyyy" />
+            </MudItem>
+
+            <MudItem xs="12" md="3">
+                <MudTextField Value="@DateTime.Now.ToShortTimeString()"
+                              Label="Hora"
+                              ReadOnly="true"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.AccessTime" />
+            </MudItem>
+
+            <MudItem xs="12" md="3">
+                <MudChip T="string" Color="@GetEstadoColor(model.Estado)"
+                         Icon="@GetEstadoIcon(model.Estado)">
+                    @model.Estado
+                </MudChip>
+            </MudItem>
+        </MudGrid>
+
+        @* Tabs *@
+        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true"
+                 PanelClass="pa-6" Class="mt-4">
+
+            @* Información General *@
+            <MudTabPanel Text="Información General" Icon="@Icons.Material.Filled.Info">
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="model.SedeComercializadora"
+                                   Label="Sede Comercializadora"
+                                   Variant="Variant.Outlined"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione una sede --</MudSelectItem>
+                            @foreach (var sede in sedesComerciales)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(sede.Value))">@sede.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="model.SedeOperativa"
+                                   Label="Sede Operativa"
+                                   Required="true"
+                                   Variant="Variant.Outlined"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione una sede --</MudSelectItem>
+                            @foreach (var sede in sedesOperativas)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(sede.Value))">@sede.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    @* Exportador y Contacto *@
+                    <MudItem xs="12" md="6">
+                        <MudAutocomplete T="int?"
+                                         @bind-Value="model.IdExportador"
+                                  
+                                         SearchFunc="@SearchExportador"
+                                         ToStringFunc="@(e => e.HasValue ? GetExportadorText(e) : string.Empty)"
+                                         Label="Exportador / Proveedor"
+                                         Variant="Variant.Outlined"
+                                         ShowProgressIndicator="true"
+                                         MinCharacters="2"
+                                         ResetValueOnEmptyText="true"
+                                         AdornmentIcon="@Icons.Material.Filled.Business"
+                                         AdornmentColor="Color.Primary">
+                            <ItemTemplate Context="exportadorId">
+                                <MudText>@GetExportadorText(exportadorId)</MudText>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="model.IdContacto"
+                                   Label="Contacto"
+                                   Variant="Variant.Outlined"
+                                   Disabled="@(!model.IdExportador.HasValue)"
+                                   AnchorOrigin="Origin.BottomCenter">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione una sede --</MudSelectItem>
+                            @foreach (var contacto in contactos)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(contacto.Value))">@contacto.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    @* Proveedor/Shipper *@
+                    <MudItem xs="12" md="6">
+                        <MudAutocomplete T="int?"
+                                         @bind-Value="model.IdExportador"
+                                         SearchFunc="@SearchProveedor"
+                                         ToStringFunc="@(e => e.HasValue ? GetProveedorText(e) : string.Empty)"
+                                         Label="Proveedor / Shipper"
+                                         Variant="Variant.Outlined"
+                                         ShowProgressIndicator="true"
+                                         MinCharacters="2"
+                                         ResetValueOnEmptyText="true"
+                                         AdornmentIcon="@Icons.Material.Filled.Business"
+                                         AdornmentColor="Color.Primary">
+                            <ItemTemplate Context="idproveedor">
+                                <MudText>@GetProveedorText(idproveedor)</MudText>
+                            </ItemTemplate>
+                        </MudAutocomplete>
+                    </MudItem>
+
+                    @* Números *@
+                    <MudItem xs="12" md="3">
+                        <MudTextField @bind-Value="model.NroPedido"
+                                      Label="Número de Pedido"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudTextField @bind-Value="model.NroCotizacion"
+                                      Label="Número de Cotización"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* Mercancía *@
+            <MudTabPanel Text="Mercancía" Icon="@Icons.Material.Filled.Inventory">
+                <MudGrid>
+     
+                    <MudItem xs="12" md="3">
+                        <MudNumericField @bind-Value="model.ValorMercancia"
+                                         Label="Valor Mercancía"
+                                         Variant="Variant.Outlined"
+                                         Format="N2"
+                                         Min="0"
+                                         Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                                         AdornmentColor="Color.Success"
+                                         HelperText="Ingrese el valor de la mercancía" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudSelect @bind-Value="model.IdMonedaValorMercancia"
+                                   Label="Moneda Mercancía"
+                                   Variant="Variant.Outlined"
+                                   AnchorOrigin="Origin.BottomCenter"
+                                   Adornment="Adornment.Start"
+                                   AdornmentIcon="@Icons.Material.Filled.CurrencyExchange"
+                                   AdornmentColor="Color.Success">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var moneda in monedas)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(moneda.Value))">@moneda.Text</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="model.TipoMercancia"
+                                      Label="Tipo de Mercancía"
+                                      Variant="Variant.Outlined"
+                                      Lines="3" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="model.InstruccionesEspeciales"
+                                      Label="Instrucciones Especiales"
+                                      Variant="Variant.Outlined"
+                                      Lines="3" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudNumericField @bind-Value="model.Peso"
+                                         Label="Peso (Kg)"
+                                         Variant="Variant.Outlined"
+                                         Format="N2"
+                                         Min="0" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudNumericField @bind-Value="model.Dimensiones"
+                                         Label="Dimensiones (m³)"
+                                         Variant="Variant.Outlined"
+                                         Format="N2"
+                                         Min="0" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudSelect T="string" @bind-Value="model.TipoDimension"
+                                   Label="Tipo de Dimensión"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((string)null)">-- Seleccione --</MudSelectItem>
+                            <MudSelectItem Value="@("M3")">Metro Cúbico (m³)</MudSelectItem>
+                            <MudSelectItem Value="@("KG")">Kilogramos (Kg)</MudSelectItem>
+                            <MudSelectItem Value="@("TON")">Toneladas</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="3">
+                        <MudSwitch @bind-Value="model.MercPeligrosa"
+                                   Label="Mercancía Peligrosa"
+                                   Color="Color.Warning" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdTipoCarga"
+                                   Label="Tipo de Carga"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var tipo in tiposCarga)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(tipo.Value))">@tipo.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdIncoterm"
+                                   Label="Incoterm"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var inco in incoterms)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(inco.Value))">@inco.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="model.Seguro"
+                                      Label="Seguro"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* Origen y Destino *@
+            <MudTabPanel Text="Origen y Destino" Icon="@Icons.Material.Filled.LocationOn">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Class="mb-2">
+                            <MudIcon Icon="@Icons.Material.Filled.FlightTakeoff" Class="mr-2" />
+                            Información de Origen
+                        </MudText>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdPaisOrigen"
+                                   Label="País de Origen"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var pais in paises)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(pais.Value))">@pais.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="model.CiudadOrigen"
+                                      Label="Ciudad de Origen"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdPuertoOrigen"
+                                   Label="Puerto de Origen"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var puerto in puertos)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(puerto.Value))">@puerto.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.h6" Class="mb-2 mt-4">
+                            <MudIcon Icon="@Icons.Material.Filled.FlightLand" Class="mr-2" />
+                            Información de Destino
+                        </MudText>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdPaisDestino"
+                                   Label="País de Destino"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var pais in paises)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(pais.Value))">@pais.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="model.CiudadDestino"
+                                      Label="Ciudad de Destino"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdPuertoDestino"
+                                   Label="Puerto de Destino"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var puerto in puertos)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(puerto.Value))">@puerto.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* Transporte *@
+            <MudTabPanel Text="Transporte" Icon="@Icons.Material.Filled.LocalShipping">
+                <MudGrid>
+                     <MudItem xs="12" md="4">
+            <MudTextField @bind-Value="model.DocumentoTransporte"
+                          Label="Documento de Transporte"
+                          Variant="Variant.Outlined"
+                          Placeholder="Ingrese el documento de transporte"
+                          HelperText="Número o referencia del documento de transporte" />
+        </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdModoTransporte"
+                                   Label="Modo de Transporte"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var modo in modosTransporte)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(modo.Value))">@modo.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="model.IdNaviera"
+                                   Label="Naviera / Línea"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var naviera in navieras)
+                            {
+                               <MudSelectItem Value="@((int?)int.Parse(naviera.Value))">@naviera.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="model.IdAgenteInternacionalOrigen"
+                                   Label="Agente Internacional Origen"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var agente in agentesInternacionales)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(agente.Value))">@agente.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="model.IdAgenteInternacionalDestino"
+                                   Label="Agente Internacional Destino"
+                                   Variant="Variant.Outlined">
+                            <MudSelectItem Value="@((int?)null)">-- Seleccione --</MudSelectItem>
+                            @foreach (var agente in agentesInternacionales)
+                            {
+                                <MudSelectItem Value="@((int?)int.Parse(agente.Value))">@agente.Text</MudSelectItem>
+
+                            }
+                        </MudSelect>
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudExpansionPanels>
+                            <MudExpansionPanel Text="Transporte Nacional" Icon="@Icons.Material.Filled.LocalShipping">
+                                <MudGrid>
+                                    <MudItem xs="12">
+                                        <MudSwitch @bind-Value="model.TransporteNacional"
+                                                   Label="Requiere Transporte Nacional"
+                                                   Color="Color.Primary" />
+                                    </MudItem>
+
+                                    @if (model.TransporteNacional)
+                                    {
+                                        <MudItem xs="12" md="4">
+                                            <MudDatePicker @bind-Date="model.FechaSolicitudTN"
+                                                           Label="Fecha de Solicitud"
+                                                           Variant="Variant.Outlined"
+                                                           DateFormat="dd/MM/yyyy" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="4">
+                                            <MudDatePicker @bind-Date="model.FechaDeCargueTN"
+                                                           Label="Fecha de Cargue"
+                                                           Variant="Variant.Outlined"
+                                                           DateFormat="dd/MM/yyyy" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="4">
+                                            <MudDatePicker @bind-Date="model.FechaCargueProductoTN"
+                                                           Label="Fecha Cargue Producto"
+                                                           Variant="Variant.Outlined"
+                                                           DateFormat="dd/MM/yyyy" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="4">
+                                            <MudTextField @bind-Value="model.VehiculoTN"
+                                                          Label="Vehículo"
+                                                          Variant="Variant.Outlined" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="4">
+                                            <MudNumericField @bind-Value="model.FleteTN"
+                                                             Label="Flete"
+                                                             Variant="Variant.Outlined"
+                                                             Format="C2" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="4">
+                                            <MudNumericField @bind-Value="model.ValorMercancia"
+                                                             Label="Valor Mercancía"
+                                                             Variant="Variant.Outlined"
+                                                             Format="C2" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="6">
+                                            <MudTextField @bind-Value="model.DireccionOrigen"
+                                                          Label="Dirección de Origen"
+                                                          Variant="Variant.Outlined"
+                                                          Lines="2" />
+                                        </MudItem>
+
+                                        <MudItem xs="12" md="6">
+                                            <MudTextField @bind-Value="model.DireccionDestino"
+                                                          Label="Dirección de Destino"
+                                                          Variant="Variant.Outlined"
+                                                          Lines="2" />
+                                        </MudItem>
+                                    }
+                                </MudGrid>
+                            </MudExpansionPanel>
+                        </MudExpansionPanels>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* Observaciones *@
+            <MudTabPanel Text="Observaciones" Icon="@Icons.Material.Filled.Comment">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="model.Observaciones"
+                                      Label="Observaciones Generales"
+                                      Variant="Variant.Outlined"
+                                      Lines="8"
+                                      HelperText="Ingrese cualquier observación adicional sobre el DO" />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+        </MudTabs>
+
+        @* Botones *@
+        <MudGrid Class="mt-4">
+            <MudItem xs="12" Class="d-flex justify-end gap-2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Save"
+                           OnClick="GuardarDO"
+                           Disabled="@isProcessing">
+                    @if (isProcessing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">Guardando...</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Guardar DO</MudText>
+                    }
+                </MudButton>
+
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.Search"
+                           OnClick="BuscarDO">
+                    Buscar DO
+                </MudButton>
+
+                @if (model.IdDO > 0)
+                {
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Warning"
+                               StartIcon="@Icons.Material.Filled.ContentCopy"
+                               OnClick="DuplicarDO">
+                        Duplicar DO
+                    </MudButton>
+
+                    @if (model.Estado == "Abierto")
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Lock"
+                                   OnClick="CerrarDO">
+                            Cerrar DO
+                        </MudButton>
+                    }
+                }
+
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Default"
+                           StartIcon="@Icons.Material.Filled.Clear"
+                           OnClick="LimpiarFormulario">
+                    Limpiar
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@* Dialog de búsqueda *@
+<MudDialog @bind-Visible="showSearchDialog" Options="searchDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Search" Class="mr-3" /> Buscar DO
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="searchTerm"
+                              Label="Buscar por número de DO, pedido u observaciones"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Adornment="Adornment.End"
+                              OnKeyUp="@(async (e) => { if (e.Key == "Enter") await SearchDOs(); })" />
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudTable Items="@searchResults"
+                          Hover="true"
+                          Striped="true"
+                          Loading="@isSearching"
+                          LoadingProgressColor="Color.Primary">
+                    <HeaderContent>
+                        <MudTh>DO</MudTh>
+                        <MudTh>Exportador</MudTh>
+                        <MudTh>Estado</MudTh>
+                        <MudTh>Fecha</MudTh>
+                        <MudTh>Acciones</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="DO">@context.NroDO</MudTd>
+                        <MudTd DataLabel="Exportador">@context.Exportador</MudTd>
+                        <MudTd DataLabel="Estado">
+                            <MudChip T="string" Color="@GetEstadoColor(context.Estado)" Size="Size.Small">
+                                @context.Estado
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Fecha">@context.FechaCreacion.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd DataLabel="Acciones">
+                            <MudIconButton Icon="@Icons.Material.Filled.OpenInNew"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => SelectDO(context.IdDO))" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => showSearchDialog = false)">Cerrar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public int? IdDO { get; set; }
+
+    // Modelo principal
+    private DOControlViewModel model = new();
+
+    // Listas para combos
+    private List<SelectOption> exportadores = new();
+    private List<SelectOption> proveedores = new();
+    private List<SelectOption> contactos = new();
+    private List<SelectOption> sedesComerciales = new();
+    private List<SelectOption> sedesOperativas = new();
+    private List<SelectOption> paises = new();
+    private List<SelectOption> incoterms = new();
+    private List<SelectOption> monedas = new();
+    private List<SelectOption> modalidades = new();
+    private List<SelectOption> modosTransporte = new();
+    private List<SelectOption> tiposCarga = new();
+    private List<SelectOption> navieras = new();
+    private List<SelectOption> agentesInternacionales = new();
+    private List<SelectOption> puertos = new();
+    private List<SelectOption> tipoDocumentos = new();
+
+    // Flags
+    private bool isProcessing = false;
+    private bool showSearchDialog = false;
+    private bool isSearching = false;
+    private string searchTerm = string.Empty;
+    private List<DOSearchResult> searchResults = new();
+
+    // Dialog
+    private DialogOptions searchDialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Medium,
+        FullWidth = true
+    };
+
+    // Fecha
+    private DateTime? fechaCreacion;
+
+    // Ciclo de vida
+    protected override async Task OnInitializedAsync()
+    {
+        // Solo catálogos aquí (sin JS interop)
+        await LoadInitialData();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        try
+        {
+            if (IdDO.HasValue && IdDO.Value > 0)
+            {
+                await LoadDO(IdDO.Value);
+            }
+            else
+            {
+                // Aquí sí podemos usar JS (localStorage)
+                var doGlobal = await StorageService.GetDOGlobalAsync();
+                if (!string.IsNullOrWhiteSpace(doGlobal))
+                {
+                    model = await DOService.GetDOByNumberAsync(doGlobal);
+                }
+            }
+
+            fechaCreacion = model.FechaCreacion;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error post render: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Carga catálogos
+    private async Task LoadInitialData()
+    {
+        try
+        {
+            exportadores           = await ParametrosService.GetExportadoresAsync();
+            proveedores            = await ParametrosService.GetProveedoresAsync();
+            sedesComerciales       = await ParametrosService.GetLugarIngresoMercanciasAsync();
+            sedesOperativas        = await ParametrosService.GetLugarIngresoMercanciasAsync();
+            paises                 = await ParametrosService.GetPaisesAsync();
+            incoterms              = await ParametrosService.GetIncotermAsync();
+            monedas                = await ParametrosService.GetMonedasAsync();
+            modalidades            = await ParametrosService.GetModalidadesAsync();
+            modosTransporte        = await ParametrosService.GetModoTransporteAsync();
+            tiposCarga             = await ParametrosService.GetTipoCargaAsync();
+            navieras               = await ParametrosService.GetNavierasAsync();
+            agentesInternacionales = await ParametrosService.GetAgentesInternacionalesAsync();
+            puertos                = await ParametrosService.GetPuertosAsync();
+            tipoDocumentos         = await ParametrosService.GetTipoDocumentosAsync("IMPORTACION");
+            monedas = await ParametrosService.GetMonedasAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al cargar datos iniciales: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Carga un DO
+    private async Task LoadDO(int idDO)
+    {
+        try
+        {
+            model = await DOService.GetDOByIdAsync(idDO);
+            fechaCreacion = model.FechaCreacion;
+
+            if (model.IdExportador.HasValue)
+                await OnExportadorChanged(model.IdExportador);
+
+            Snackbar.Add("DO cargado correctamente", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al cargar DO: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Guardar/Actualizar
+    private async Task GuardarDO()
+    {
+        isProcessing = true;
+
+        try
+        {
+            if (!model.IdExportador.HasValue)
+            {
+                Snackbar.Add("Debe seleccionar un exportador", Severity.Warning);
+                return;
+            }
+
+            if (model.IdDO > 0)
+            {
+                var result = await DOService.UpdateDOAsync(model);
+                if (result)
+                {
+                    Snackbar.Add("DO actualizado correctamente", Severity.Success);
+                    await EmailService.SendDONotificationAsync(model.IdDO, "UPDATE");
+                }
+                else
+                {
+                    Snackbar.Add("Error al actualizar DO", Severity.Error);
+                }
+            }
+            else
+            {
+                var newId = await DOService.SaveDOAsync(model);
+                if (newId > 0)
+                {
+                    model.IdDO = newId;
+                    Snackbar.Add($"DO creado correctamente con ID: {newId}", Severity.Success);
+
+                    await StorageService.SetDOGlobalAsync(model.NroDO);
+                    await StorageService.SetTipoDOAsync("IMPO");
+
+                    await EmailService.SendDONotificationAsync(newId, "CREATE");
+
+                    Navigation.NavigateTo($"/do/asiscomex/{newId}");
+                }
+                else
+                {
+                    Snackbar.Add("Error al crear DO", Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    // Buscar
+    private void BuscarDO()
+    {
+        showSearchDialog = true;
+        searchResults.Clear();
+        searchTerm = string.Empty;
+    }
+
+    private async Task SearchDOs()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm.Length < 3)
+        {
+            Snackbar.Add("Ingrese al menos 3 caracteres para buscar", Severity.Info);
+            return;
+        }
+
+        isSearching = true;
+
+        try
+        {
+            searchResults = await DOService.SearchDOAsync(searchTerm);
+
+            if (!searchResults.Any())
+                Snackbar.Add("No se encontraron resultados", Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error en la búsqueda: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private async Task SelectDO(int idDO)
+    {
+        showSearchDialog = false;
+        await LoadDO(idDO);
+        Navigation.NavigateTo($"/do/asiscomex/{idDO}");
+    }
+
+    // Duplicar
+    private async Task DuplicarDO()
+    {
+        if (model.IdDO <= 0)
+        {
+            Snackbar.Add("No hay un DO para duplicar", Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            var result = await DOService.DuplicateDOAsync(model.IdDO);
+            if (result)
+            {
+                Snackbar.Add("DO duplicado correctamente", Severity.Success);
+                await SearchDOs();
+            }
+            else
+            {
+                Snackbar.Add("Error al duplicar DO", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Cerrar
+    private async Task CerrarDO()
+    {
+        if (model.IdDO <= 0)
+        {
+            Snackbar.Add("No hay un DO para cerrar", Severity.Warning);
+            return;
+        }
+
+        bool? result = await ShowConfirmDialog("Cerrar DO",
+            "¿Está seguro de cerrar este DO? Esta acción no se puede deshacer.");
+
+        if (result == true)
+        {
+            try
+            {
+                var closed = await DOService.CloseDOAsync(model.IdDO, "Cerrado");
+                if (closed)
+                {
+                    model.Estado = "Cerrado";
+                    Snackbar.Add("DO cerrado correctamente", Severity.Success);
+                    StateHasChanged();
+                }
+                else
+                {
+                    Snackbar.Add("Error al cerrar DO", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+
+    // Limpiar
+    private void LimpiarFormulario()
+    {
+        model = new DOControlViewModel();
+        fechaCreacion = DateTime.Now;
+        contactos.Clear();
+        StateHasChanged();
+    }
+
+    // Cambio de exportador
+    private async Task OnExportadorChanged(int? exportadorId)
+    {
+        model.IdExportador = exportadorId;
+        contactos.Clear();
+        model.IdContacto = null;
+
+        if (exportadorId.HasValue)
+        {
+            contactos = await ExportadorService.GetContactosByExportadorAsync(exportadorId.Value);
+            var sedeComercial = await ExportadorService.GetSedeComercialByExportadorAsync(exportadorId.Value);
+            if (sedeComercial.HasValue)
+                model.SedeComercializadora = sedeComercial.Value;
+        }
+
+        StateHasChanged();
+    }
+
+    // Autocomplete exportador
+    private async Task<IEnumerable<int?>> SearchExportador(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return exportadores.Take(10).Select(e => (int?)int.Parse(e.Value));
+
+        return exportadores
+            .Where(e => e.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Take(10)
+            .Select(e => (int?)int.Parse(e.Value));
+    }
+
+    // Autocomplete proveedor
+    private async Task<IEnumerable<int?>> SearchProveedor(string value, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return proveedores.Take(10).Select(e => (int?)int.Parse(e.Value));
+
+        return proveedores
+            .Where(e => e.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Take(10)
+            .Select(e => (int?)int.Parse(e.Value));
+    }
+
+    private string GetProveedorText(int? idproveedor)
+    {
+        if (!idproveedor.HasValue)
+            return string.Empty;
+
+        var exportador = proveedores.FirstOrDefault(e => e.Value == idproveedor.ToString());
+        return exportador?.Text ?? string.Empty;
+    }
+
+    private string GetExportadorText(int? exportadorId)
+    {
+        if (!exportadorId.HasValue)
+            return string.Empty;
+
+        var exportador = exportadores.FirstOrDefault(e => e.Value == exportadorId.ToString());
+        return exportador?.Text ?? string.Empty;
+    }
+
+    // Estado
+    private Color GetEstadoColor(string estado) => estado?.ToLower() switch
+    {
+        "abierto" => Color.Success,
+        "cerrado" => Color.Error,
+        "proceso" => Color.Warning,
+        "cancelado" => Color.Dark,
+        _ => Color.Default
+    };
+
+    private string GetEstadoIcon(string estado) => estado?.ToLower() switch
+    {
+        "abierto" => Icons.Material.Filled.LockOpen,
+        "cerrado" => Icons.Material.Filled.Lock,
+        "proceso" => Icons.Material.Filled.Pending,
+        "cancelado" => Icons.Material.Filled.Cancel,
+        _ => Icons.Material.Filled.Info
+    };
+
+    // Confirmación
+    private async Task<bool?> ShowConfirmDialog(string title, string message)
+    {
+        var parameters = new DialogParameters<ConfirmDialog>
+        {
+            { x => x.ContentText, message }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>(title, parameters, options);
+        var result = await dialog.Result;
+
+        return !result.Canceled;
+    }
+
+    // Componente interno de confirmación
+    public partial class ConfirmDialog : ComponentBase
+    {
+        [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+        [Parameter] public string ContentText { get; set; } = string.Empty;
+
+        void Submit() => MudDialog.Close(DialogResult.Ok(true));
+        void Cancel() => MudDialog.Cancel();
+    }
+}
